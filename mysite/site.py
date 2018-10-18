@@ -9,7 +9,7 @@ counter = 1
 def index():
     global counter
     counter += 1
-    return "Hello Visitor"
+    return "Hello Visitors"
 
 @app.route("/counters")
 def counters():
