@@ -36,5 +36,5 @@ variable "subnet_id" {
 variable "user" {
   description = "The user to display"
   type = "string"
-  default = "" # Example subnet-xxxxxx
+  default = "" # 
 }
