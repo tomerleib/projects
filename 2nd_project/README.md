@@ -9,6 +9,7 @@ Hi! Thanks for looking into this project. This is but a mere simple TF based pro
 ## Terraform installation
 
 * Download the binary from https://www.terraform.io/downloads.html (Optional, place it in your $PATH)
+* Download\copy the tf files to your workspace.
 * Run `terraform init` to initialize and download all needed providers plugins
 
 ## Make it personal!
