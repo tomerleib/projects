@@ -1,0 +1,85 @@
+---
+- name:            Run the script locally
+  hosts:           openstack
+  remote_user:     ansible
+  become:          yes
+  gather_facts:    false
+  pre_tasks:
+  - name:          install python 2
+    raw:           test -e /usr/bin/python || (apt -y update && apt install -y python-minimal)
+    changed_when:  False
+
+  tasks:
+  - name:          Install Ansible
+    apt:
+      name:        ansible
+    changed_when:  False
+
+  - name:          Create the initial folder where to store the ansible files
+    file:
+      path:        /opt/openstack-ansible
+      state:       directory
+      mode:        0755
+
+  - name:          Cloning the actual repository
+    git:
+      repo:        'https://git.openstack.org/openstack/openstack-ansible.git'
+      dest:        /opt/openstack-ansible
+      clone:       yes
+      version:     stable/ocata
+
+  - name:          Run initializing script
+    command:       scripts/bootstrap-ansible.sh
+    args:
+      chdir:       /opt/openstack-ansible/
+    changed_when:  False
+
+  - name:          Run AIO script
+    command:       scripts/bootstrap-aio.sh
+    args:
+      chdir:       /opt/openstack-ansible/
+    changed_when:  False
+  - name:          Run Setup Hosts
+    command:       scripts/run-playbooks.sh
+    args:
+      chdir:       /opt/openstack-ansible/
+    changed_when:  False
+
+  - name:          Changing Galera Settings
+    lineinfile:
+      path:        /etc/openstack_deploy/user_variables.yml
+      insertafter: '## Galera settings'
+      line: 'galera_max_connections: 250'
+
+
+  - name:          Rerun Galera playbook
+    command:       openstack-ansible galera-install.yml
+    args:
+      chdir:       /opt/openstack-ansible/playbooks
+    register:      results
+    changed_when:  False
+
+  - name:          Changing Quota and Kernel
+    script:        initial.sh
+    register:      quota
+
+  - debug:
+      var:         quota.stdout_lines
+
+  - name:          Copy tests.py
+    copy:
+      src:         tests.py
+      dest:        /root/tests.py
+      owner:       root
+      group:       root
+      mode:        0700
+
+  - name:          Running Tests
+    command:       python tests.py
+    args:
+      chdir:       /root
+    changed_when:  False
+    register:      results
+
+  - debug:
+      var:         results.stdout_lines
