@@ -1,0 +1,45 @@
+service:                    es
+
+plugins:
+  - serverless-python-requirements
+  - serverless-kms-secrets
+
+
+custom:
+  pythonRequirements:
+    dockerizePip:           false
+  serverless-kms-secrets:
+    secretsFile:            kms_env/kms-secrets.yml
+  kmsSecrets:               '${file(kms_env/kms-secrets.yml)}'
+
+provider:
+  name:                     aws
+  runtime:                  python2.7
+  timeout:                  360
+  region:                   eu-west-1
+  stage:                    production
+  profile:                  default
+  iamRoleStatements:
+    - Effect:               Allow
+      Action:
+        - 'KMS:Decrypt'
+      Resource:             '${self:custom.kmsSecrets.keyArn}'
+  environment:
+    kmsEncryptedPassword:   '${self:custom.kmsSecrets.secrets.kmsEncryptedPassword}'
+    kmsEncryptedToken:      '${self:custom.kmsSecrets.secrets.kmsEncryptedToken}'
+    elkDomain:              '${opt:elkDomain, ''es-cluster.local''}'
+    elkPort:                '${opt:elkPort, ''9020''}'
+    slackChannel:           '${opt:slackChannel, ''devops''}'
+
+functions:
+  curator:
+    handler:                handler.lambda_handler
+    vpc:
+          securityGroupIds:
+            - [SecurityGroup ID]
+          subnetIds:
+            - [subnet-a1b2c3e]
+            - [subnet-a2b3cde]
+    events:
+      - schedule:           rate(4 hours)
+    role:                   arn:aws:iam::1234567812:role/elk-curator-prod-eu-west-1-lambdaRole
