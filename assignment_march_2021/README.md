@@ -26,11 +26,15 @@ terragrunt run-all destroy
 You can find here the following directories that I've added to the project:
 
 * _demo_ : The root folder which contains the entire IaaC (Terragrunt)
-* _charts_ : The helm chart for the component
 
-## Dockerfiles
+### Application Code
 
-In each component directory, you can find the relevant Dockerfile that I've wrote.
+In the following git repo, you can find the code for the application, the Dockerfile and also the helm chart: <https://github.com/tomerleib/content-application>
+
+### Continuous Deployment (CD via GitOps)
+
+To obtain a continuous deployment when a new image is ready, I've used in this project Flux.
+The manifests can be obtained here: <https://github.com/tomerleib/flux-system>
 
 ## Additional components
 
