@@ -1,7 +1,7 @@
 locals {
   account_name = "demo"
-  aws_account_id   = "202581749740"
-  aws_iam_arn = "arn:aws:iam::202581749740:user/tomerl"
+  aws_account_id   = "11111111111"
+  aws_iam_arn = "arn:aws:iam::11111111111:user/tomerl"
   user_name  = "tomerl"
 
 }
